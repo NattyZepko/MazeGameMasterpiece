@@ -18,7 +18,7 @@ public class Guard {
 	}
 
 	public void UpdatePosition(float deltaTimeAverage) {
-		elapsedTime += deltaTimeAverage * 0.01;
+		elapsedTime += deltaTimeAverage * 0.002;
 		float A = (endPosX - startPosX)/2;
 		float B = (endPosX + startPosX)/2;
 		currentX = (float) (A * Math.sin(elapsedTime) + B);
