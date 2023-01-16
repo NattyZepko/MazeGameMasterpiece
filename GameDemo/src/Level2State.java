@@ -199,16 +199,9 @@ public class Level2State extends GameState {
 				
 				if(!currentGuard.hasShot)
 					currentGuard.FireBullet(this.playerX,this.playerY);
-				
-				
-				
 				g.setColor(Color.red);
 				g.drawLine((int) playerX + (playerSize / 2), (int) playerY + (playerSize / 2),
 						(int) currentGuard.currentX + (playerSize / 2), (int) currentGuard.currentY + (playerSize / 2));
-				// ENABLE THESE LINES TO ALLOW GAME OVER BY LOSING
-				//
-				// this.caught = true; return;
-				//
 			} else if (this.showLines) {
 				g.setColor(Color.cyan);
 				g.drawLine((int) playerX + (playerSize / 2), (int) playerY + (playerSize / 2),

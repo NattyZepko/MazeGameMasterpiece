@@ -19,12 +19,8 @@ public class Guard {
 
 	public void UpdatePosition(float deltaTimeAverage) {
 		elapsedTime += deltaTimeAverage * 0.002;
-		float A = (endPosX - startPosX)/2;
-		float B = (endPosX + startPosX)/2;
-		currentX = (float) (A * Math.sin(elapsedTime) + B);
-		A = (endPosY - startPosY)/2;
-		B = (endPosY + startPosY)/2;
-		currentY = (float) (A * Math.sin(elapsedTime) + B);
+		currentX = (float) (((endPosX - startPosX)/2) * Math.sin(elapsedTime) + ((endPosX + startPosX)/2));
+		currentY = (float) (((endPosY - startPosY)/2) * Math.sin(elapsedTime) + ((endPosY + startPosY)/2));
 		
 	}
 
