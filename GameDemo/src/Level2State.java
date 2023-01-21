@@ -10,7 +10,7 @@ public class Level2State extends GameState {
 	boolean active;
 	boolean showLines;
 	boolean caught = false;
-	int lives;
+	public static int lives;
 	float playerX, playerY;
 	float deltaTimeAverage;
 	BSPNode BSPTreeRoot;
@@ -22,8 +22,7 @@ public class Level2State extends GameState {
 	public static float upperX = 32, lowerX = 943, upperY = 80, lowerY = 525;
 	public final static int policeX = 315, policeY = 220;
 
-	public Level2State(int lives) {
-		this.lives = lives;
+	public Level2State() {
 		this.caught = false;
 		this.showLines = false;
 		this.command = "Playing";
@@ -42,7 +41,6 @@ public class Level2State extends GameState {
 	public void enter(Object memento) {
 		active = true;
 		deltaTimeAverage = 0;
-		this.lives = 3;
 		this.caught = false;
 		this.showLines = false;
 		this.command = "Playing";
@@ -176,7 +174,7 @@ public class Level2State extends GameState {
 		drawMap(g, this.BSPTreeRoot);
 		drawHeadline(g);
 		drawLineOfSight(g);
-		drawGuard(g);
+		drawGuards(g);
 		drawPlayer(g);
 		drawBullet(g);
 
@@ -187,7 +185,7 @@ public class Level2State extends GameState {
 		g.fillOval((int) playerX, (int) playerY, playerSize, playerSize);
 	}
 
-	public void drawGuard(Graphics g) {
+	public void drawGuards(Graphics g) {
 		g.setColor(Color.blue);
 		for (Guard currentGuard : guardList) {
 			currentGuard.UpdatePosition(deltaTimeAverage);
@@ -204,11 +202,17 @@ public class Level2State extends GameState {
 			if (currentBullet.UpdatePosition(BSPTreeRoot)) {
 				// We need to draw the bullet
 				g.fillOval((int) currentBullet.currentX, (int) currentBullet.currentY, bulletSize, bulletSize);
-				if ((Math.abs(playerX - currentBullet.currentX) < 0.1)
-						&& (Math.abs(playerY - currentBullet.currentY) < 0.1)) {
+				if ((Math.abs(playerX - currentBullet.currentX) < 2.5)
+						&& (Math.abs(playerY - currentBullet.currentY) < 2.5)) {
 					// BULLET HIT THE PLAYER
-					// 1. remove 1 life from the player
-					// 2. restart the level
+					lives--;
+					if (lives > 0) {
+						this.playerX = startX;
+						this.playerY = startY;
+					} else {
+						command = "GameLost";
+						this.active = false;
+					}
 				} else if ((currentBullet.currentX > lowerX) || (currentBullet.currentX < upperX)
 						|| (currentBullet.currentY > lowerY) || (currentBullet.currentY < upperY)) {
 					itr.remove();
@@ -242,10 +246,10 @@ public class Level2State extends GameState {
 		String sight = "on";
 		if (this.showLines == false)
 			sight = "off";
-		message = "Lives: " + lives + ", Q = Menu , R = Show sight (" + sight + "),  current coordinates: " + playerX
-				+ "," + playerY + "\n";
-		message += " y2=" + guardList.get(1).currentY;
-		g.drawString(message, 10, 10);
+		message = "Lives: " + lives + ", Q = Menu , R = Show sight (" + sight + ")";
+		g.drawString(message, 10, 660);
+		message = "Direction movement: W,A,S,D keys or Arrow keys";
+		g.drawString(message, 10, 685);
 	}
 
 	public void drawMap(Graphics g, BSPNode current) {

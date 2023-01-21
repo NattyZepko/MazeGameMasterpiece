@@ -6,8 +6,8 @@ public class MazeGame extends Game {
 		GameState welcome = new WelcomeState();
 		GameState youLose = new GameLostState();
 		GameState youWin = new GameWonState();
-		GameState level1 = new Level1State(3);
-		GameState level2 = new Level2State(3);
+		GameState level1 = new Level1State();
+		GameState level2 = new Level2State();
 		// stateMachine.installState("Play", play);
 
 		stateMachine.installState("Welcome", welcome);
@@ -16,7 +16,7 @@ public class MazeGame extends Game {
 		stateMachine.installState("Level1", level1);
 		stateMachine.installState("Level2", level2);
 
-		stateMachine.setStartState(level2);
+		stateMachine.setStartState(welcome);
 	}
 
 	public static void main(String[] args) {

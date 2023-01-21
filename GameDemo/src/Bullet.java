@@ -7,7 +7,7 @@ public class Bullet {
 	public float currentX;
 	public float currentY;
 	public double dX, dY;
-	public final double speed = 1.7;
+	public final double speed = 3.5;
 	// private double elapsedTime = 0;
 
 	public Bullet(Line moveDirection) {

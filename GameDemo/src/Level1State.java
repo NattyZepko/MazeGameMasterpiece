@@ -4,13 +4,14 @@ import java.awt.Polygon;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Level1State extends GameState {
 
 	boolean active;
 	boolean showLines;
 	boolean caught = false;
-	int lives;
+	public static int lives = 1;
 	float playerX, playerY;
 	float deltaTimeAverage;
 	BSPNode BSPTreeRoot;
@@ -19,12 +20,12 @@ public class Level1State extends GameState {
 	String command;
 	ArrayList<Guard> guardList;
 	ArrayList<Bullet> bulletList;
-	public static int playerSize = 8, startX = 75, startY = 500;
+
+	public static int playerSize = 8, startX = 75, startY = 500, bulletSize = 5;
 	public static float upperX = 32, lowerX = 943, upperY = 80, lowerY = 525;
 	public final static int policeX = 315, policeY = 220;
 
-	public Level1State(int lives) {
-		this.lives = lives;
+	public Level1State() {
 		this.caught = false;
 		this.showLines = false;
 		this.command = "Playing";
@@ -42,7 +43,7 @@ public class Level1State extends GameState {
 	public void enter(Object memento) {
 		active = true;
 		deltaTimeAverage = 0;
-		this.lives = 3;
+		lives = 5;
 		this.caught = false;
 		this.showLines = false;
 		this.command = "Playing";
@@ -162,18 +163,20 @@ public class Level1State extends GameState {
 		Graphics g = aGameFrameBuffer.graphics();
 		if (PlayerWin()) {
 			this.command = "Level1Win";
+			Level2State.lives = lives;
 			this.active = false;
 		}
 		drawMap(g, this.BSPTreeRoot);
 		drawHeadline(g);
 		drawLineOfSight(g);
-		drawPolice(g);
+		drawGuards(g);
 		drawPlayer(g);
-
+		drawBullet(g);
 	}
 
 	private boolean PlayerWin() {
 		return LevelsBuilder.Level1Finish.getArea().contains(new Point2D.Float(playerX, playerY));
+
 	}
 
 	public void drawPlayer(Graphics g) {
@@ -181,7 +184,7 @@ public class Level1State extends GameState {
 		g.fillOval((int) playerX, (int) playerY, playerSize, playerSize);
 	}
 
-	public void drawPolice(Graphics g) {
+	public void drawGuards(Graphics g) {
 		g.setColor(Color.blue);
 		for (Guard currentGuard : guardList) {
 			currentGuard.UpdatePosition(deltaTimeAverage);
@@ -190,20 +193,47 @@ public class Level1State extends GameState {
 
 	}
 
+	public void drawBullet(Graphics g) {
+		g.setColor(Color.magenta);
+		Iterator<Bullet> itr = bulletList.iterator();
+		Bullet currentBullet;
+		while (itr.hasNext()) {
+			currentBullet = itr.next();
+			if (currentBullet.UpdatePosition(BSPTreeRoot)) {
+				// We need to draw the bullet
+				g.fillOval((int) currentBullet.currentX, (int) currentBullet.currentY, bulletSize, bulletSize);
+				if ((Math.abs(playerX - currentBullet.currentX) < 2.5)
+						&& (Math.abs(playerY - currentBullet.currentY) < 2.5)) {
+					// BULLET HIT THE PLAYER
+					lives--;
+					if (lives > 0) {
+						this.playerX = startX;
+						this.playerY = startY;
+					} else {
+						command = "GameLost";
+						this.active = false;
+					}
+				} else if ((currentBullet.currentX > lowerX) || (currentBullet.currentX < upperX)
+						|| (currentBullet.currentY > lowerY) || (currentBullet.currentY < upperY)) {
+					itr.remove();
+				}
+			} else
+				itr.remove();
+		}
+
+	}
+
 	public void drawLineOfSight(Graphics g) {
 		for (Guard currentGuard : guardList) {
 			if (BSPTree.ThereIsLineOfSight(new Line(new Point2D.Float((int) this.playerX, (int) this.playerY),
 					new Point2D.Float(currentGuard.currentX, currentGuard.currentY)), this.BSPTreeRoot)) {
-				currentGuard.FireBullet(this.playerX, this.playerY);
-
+				// Guard can see the player:)
+				bulletList.add(currentGuard.FireBullet(this.playerX, this.playerY));
 				g.setColor(Color.red);
 				g.drawLine((int) playerX + (playerSize / 2), (int) playerY + (playerSize / 2),
 						(int) currentGuard.currentX + (playerSize / 2), (int) currentGuard.currentY + (playerSize / 2));
-				// ENABLE THESE LINES TO ALLOW GAME OVER BY LOSING
-				//
-				// this.caught = true; return;
-				//
 			} else if (this.showLines) {
+				// Guard can't see the player:
 				g.setColor(Color.cyan);
 				g.drawLine((int) playerX + (playerSize / 2), (int) playerY + (playerSize / 2),
 						(int) currentGuard.currentX + (playerSize / 2), (int) currentGuard.currentY + (playerSize / 2));
@@ -216,10 +246,10 @@ public class Level1State extends GameState {
 		String sight = "on";
 		if (this.showLines == false)
 			sight = "off";
-		message = "Lives: " + lives + ", Q = Menu , R = Show sight (" + sight + "),  current coordinates: " + playerX
-				+ "," + playerY + "\n";
-		message += " y2=" + guardList.get(1).currentY;
+		message = "Lives: " + lives + ", Q = Menu , R = Show sight (" + sight + ")";
 		g.drawString(message, 10, 10);
+		message = "Direction movement: W,A,S,D keys or Arrow keys";
+		g.drawString(message, 10, 25);
 	}
 
 	public void drawMap(Graphics g, BSPNode current) {
