@@ -18,7 +18,8 @@ public class Level1State extends GameState {
 	String message;
 	String command;
 	ArrayList<Guard> guardList;
-	public static int playerSize = 7, startX = 75, startY = 500;
+	ArrayList<Bullet> bulletList;
+	public static int playerSize = 8, startX = 75, startY = 500;
 	public static float upperX = 32, lowerX = 943, upperY = 80, lowerY = 525;
 	public final static int policeX = 315, policeY = 220;
 
@@ -48,6 +49,7 @@ public class Level1State extends GameState {
 		playerX = startX;
 		playerY = startY;
 		this.guardList = new ArrayList<>();
+		this.bulletList = new ArrayList<>();
 		CreateGuardList();
 	}
 
@@ -55,7 +57,6 @@ public class Level1State extends GameState {
 		guardList.add(new Guard(318, 430, 318, 100));
 		guardList.add(new Guard(710, 405, 710, 150));
 		guardList.add(new Guard(672, 150, 672, 405));
-
 	}
 
 	public void processKeyReleased(int aKeyCode) {
@@ -120,7 +121,6 @@ public class Level1State extends GameState {
 			this.playerX = (float) x;
 			this.playerY = (float) y;
 		}
-
 	}
 
 	public void update(long deltaTime) {
@@ -194,9 +194,7 @@ public class Level1State extends GameState {
 		for (Guard currentGuard : guardList) {
 			if (BSPTree.ThereIsLineOfSight(new Line(new Point2D.Float((int) this.playerX, (int) this.playerY),
 					new Point2D.Float(currentGuard.currentX, currentGuard.currentY)), this.BSPTreeRoot)) {
-
-				if (!currentGuard.hasShot)
-					currentGuard.FireBullet(this.playerX, this.playerY);
+				currentGuard.FireBullet(this.playerX, this.playerY);
 
 				g.setColor(Color.red);
 				g.drawLine((int) playerX + (playerSize / 2), (int) playerY + (playerSize / 2),

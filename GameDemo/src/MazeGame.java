@@ -16,7 +16,7 @@ public class MazeGame extends Game {
 		stateMachine.installState("Level1", level1);
 		stateMachine.installState("Level2", level2);
 
-		stateMachine.setStartState(welcome);
+		stateMachine.setStartState(level2);
 	}
 
 	public static void main(String[] args) {
